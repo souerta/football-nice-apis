@@ -14,6 +14,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -37,19 +39,11 @@ public class PlayerIntegrationTest {
 
     @Test
     void testCreatePlayer() {
-        // Create a team first
-        TeamDTO teamDTO = new TeamDTO();
-        teamDTO.setName("Team Name");
-        teamDTO.setAcronym("TN");
-        teamDTO.setBudget(100000.0);
+        TeamDTO teamDTO = createTestTeamDTO();
         ResponseEntity<TeamDTO> teamResponse = restTemplate.withBasicAuth("admin", "admin123")
                 .postForEntity("/api/teams", teamDTO, TeamDTO.class);
 
-        // Create a player associated with the team
-        PlayerDTO playerDTO = new PlayerDTO();
-        playerDTO.setFirstName("John");
-        playerDTO.setLastName("Doe");
-        playerDTO.setPosition("Forward");
+        PlayerDTO playerDTO = createTestPlayerDTO();
         playerDTO.setTeamId(teamResponse.getBody().getId());
 
         ResponseEntity<PlayerDTO> response = restTemplate.withBasicAuth("admin", "admin123")
@@ -62,19 +56,11 @@ public class PlayerIntegrationTest {
 
     @Test
     void testGetPlayerById() {
-        // Create a team first
-        TeamDTO teamDTO = new TeamDTO();
-        teamDTO.setName("Team Name");
-        teamDTO.setAcronym("TN");
-        teamDTO.setBudget(100000.0);
+        TeamDTO teamDTO = createTestTeamDTO();
         ResponseEntity<TeamDTO> teamResponse = restTemplate.withBasicAuth("admin", "admin123")
                 .postForEntity("/api/teams", teamDTO, TeamDTO.class);
 
-        // Create a player associated with the team
-        PlayerDTO playerDTO = new PlayerDTO();
-        playerDTO.setFirstName("John");
-        playerDTO.setLastName("Doe");
-        playerDTO.setPosition("Forward");
+        PlayerDTO playerDTO = createTestPlayerDTO();
         playerDTO.setTeamId(teamResponse.getBody().getId());
         ResponseEntity<PlayerDTO> playerResponse = restTemplate.withBasicAuth("admin", "admin123")
                 .postForEntity("/api/players", playerDTO, PlayerDTO.class);
@@ -89,30 +75,26 @@ public class PlayerIntegrationTest {
 
     @Test
     void testUpdatePlayer() {
-        // Create a team first
-        TeamDTO teamDTO = new TeamDTO();
-        teamDTO.setName("Team Name");
-        teamDTO.setAcronym("TN");
-        teamDTO.setBudget(100000.0);
+        TeamDTO teamDTO = createTestTeamDTO();
         ResponseEntity<TeamDTO> teamResponse = restTemplate.withBasicAuth("admin", "admin123")
                 .postForEntity("/api/teams", teamDTO, TeamDTO.class);
 
-        // Create a player associated with the team
-        PlayerDTO playerDTO = new PlayerDTO();
-        playerDTO.setFirstName("John");
-        playerDTO.setLastName("Doe");
-        playerDTO.setPosition("Forward");
+        PlayerDTO playerDTO = createTestPlayerDTO();
         playerDTO.setTeamId(teamResponse.getBody().getId());
         ResponseEntity<PlayerDTO> playerResponse = restTemplate.withBasicAuth("admin", "admin123")
                 .postForEntity("/api/players", playerDTO, PlayerDTO.class);
 
-        // Update the player
         PlayerDTO updatedPlayerDTO = new PlayerDTO();
         updatedPlayerDTO.setFirstName("Jane");
         updatedPlayerDTO.setLastName("Doe");
         updatedPlayerDTO.setPosition("Midfielder");
-        HttpEntity<PlayerDTO> requestUpdate = new HttpEntity<>(updatedPlayerDTO);
+        updatedPlayerDTO.setAge(26);
+        updatedPlayerDTO.setJerseyNumber(12);
+        updatedPlayerDTO.setNationality("Canadian");
+        updatedPlayerDTO.setSize("5ft 8in");
+        updatedPlayerDTO.setSalary(55000.0);
 
+        HttpEntity<PlayerDTO> requestUpdate = new HttpEntity<>(updatedPlayerDTO);
         ResponseEntity<PlayerDTO> response = restTemplate.withBasicAuth("admin", "admin123")
                 .exchange("/api/players/" + playerResponse.getBody().getId(), HttpMethod.PUT, requestUpdate, PlayerDTO.class);
 
@@ -123,42 +105,43 @@ public class PlayerIntegrationTest {
 
     @Test
     void testDeletePlayer() {
-        // Create a team first
+        TeamDTO teamDTO = createTestTeamDTO();
+        ResponseEntity<TeamDTO> teamResponse = restTemplate.withBasicAuth("admin", "admin123")
+                .postForEntity("/api/teams", teamDTO, TeamDTO.class);
+
+        PlayerDTO playerDTO = createTestPlayerDTO();
+        playerDTO.setTeamId(teamResponse.getBody().getId());
+        ResponseEntity<PlayerDTO> playerResponse = restTemplate.withBasicAuth("admin", "admin123")
+                .postForEntity("/api/players", playerDTO, PlayerDTO.class);
+
+        restTemplate.withBasicAuth("admin", "admin123").delete("/api/players/" + playerResponse.getBody().getId());
+
+        ResponseEntity<String> response = restTemplate.withBasicAuth("admin", "admin123")
+                .getForEntity("/api/players/" + playerResponse.getBody().getId(), String.class);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+    }
+
+
+
+    private TeamDTO createTestTeamDTO() {
         TeamDTO teamDTO = new TeamDTO();
         teamDTO.setName("Team Name");
         teamDTO.setAcronym("TN");
         teamDTO.setBudget(100000.0);
-        ResponseEntity<TeamDTO> teamResponse = restTemplate.withBasicAuth("admin", "admin123")
-                .postForEntity("/api/teams", teamDTO, TeamDTO.class);
-        assertThat(teamResponse.getStatusCodeValue()).isEqualTo(200);
-        assertThat(teamResponse.getBody()).isNotNull();
-        Long teamId = teamResponse.getBody().getId();
-        assertThat(teamId).isNotNull();
+        return teamDTO;
+    }
 
-        // Create a player associated with the team
+    private PlayerDTO createTestPlayerDTO() {
         PlayerDTO playerDTO = new PlayerDTO();
         playerDTO.setFirstName("John");
         playerDTO.setLastName("Doe");
         playerDTO.setPosition("Forward");
-        playerDTO.setTeamId(teamId);
-        ResponseEntity<PlayerDTO> playerResponse = restTemplate.withBasicAuth("admin", "admin123")
-                .postForEntity("/api/players", playerDTO, PlayerDTO.class);
-        assertThat(playerResponse.getStatusCodeValue()).isEqualTo(200);
-        assertThat(playerResponse.getBody()).isNotNull();
-        Long playerId = playerResponse.getBody().getId();
-        assertThat(playerId).isNotNull();
-
-        // Delete the player
-        restTemplate.withBasicAuth("admin", "admin123").delete("/api/players/" + playerId);
-
-        // Try to get the deleted player
-        ResponseEntity<String> response = restTemplate.withBasicAuth("admin", "admin123")
-                .getForEntity("/api/players/" + playerId, String.class);
-
-        // Log the raw response
-        System.out.println("Raw response: " + response.getBody());
-
-        // Check the status code
-        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+        playerDTO.setAge(25);
+        playerDTO.setJerseyNumber(10);
+        playerDTO.setNationality("American");
+        playerDTO.setSize("6ft");
+        playerDTO.setSalary(50000.0);
+        return playerDTO;
     }
 }

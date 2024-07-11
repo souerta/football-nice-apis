@@ -91,4 +91,28 @@ public class DtoConversionUtils {
         team.getPlayers().clear();
         team.getPlayers().addAll(convertToPlayerList(playerDTOs, team));
     }
+    public static Player convertToPlayer(PlayerDTO playerDTO, Team team) {
+        Player player = new Player();
+        player.setFirstName(playerDTO.getFirstName());
+        player.setLastName(playerDTO.getLastName());
+        player.setPosition(playerDTO.getPosition());
+        player.setJerseyNumber(playerDTO.getJerseyNumber());
+        player.setAge(playerDTO.getAge());
+        player.setNationality(playerDTO.getNationality());
+        player.setSize(playerDTO.getSize());
+        player.setSalary(playerDTO.getSalary());
+        player.setTeam(team);
+        return player;
+    }
+    public static void updatePlayerFromDTO(Player player, PlayerDTO playerDTO) {
+        player.setFirstName(playerDTO.getFirstName());
+        player.setLastName(playerDTO.getLastName());
+        player.setPosition(playerDTO.getPosition());
+        player.setJerseyNumber(playerDTO.getJerseyNumber());
+        player.setAge(playerDTO.getAge());
+        player.setNationality(playerDTO.getNationality());
+        player.setSize(playerDTO.getSize());
+        player.setSalary(playerDTO.getSalary());
+    }
+
 }

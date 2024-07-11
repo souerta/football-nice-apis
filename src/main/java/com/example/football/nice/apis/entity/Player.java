@@ -2,7 +2,6 @@ package com.example.football.nice.apis.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.Objects;
 
 @Data
@@ -23,12 +22,16 @@ public class Player {
             generator = "player_id_seq"
     )
     private Long id;
+
     @Column(nullable = false)
     private String firstName;
+
     @Column(nullable = false)
     private String lastName;
+
     @Column(nullable = false)
     private String position;
+
     private Integer jerseyNumber;
     private Integer age;
     private String nationality;
@@ -38,7 +41,6 @@ public class Player {
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
-
 
     @Override
     public boolean equals(Object o) {

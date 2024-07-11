@@ -39,14 +39,14 @@ class PlayerServiceTest {
     void setUp() {
         player = new Player();
         player.setId(1L);
-        player.setFirstName("John");
-        player.setLastName("Doe");
-        player.setPosition("Forward");
+        player.setFirstName("Player 1");
+        player.setLastName("Player 1 Name" );
+        player.setPosition("12");
 
         playerDTO = new PlayerDTO();
-        playerDTO.setFirstName("John");
-        playerDTO.setLastName("Doe");
-        playerDTO.setPosition("Forward");
+        playerDTO.setFirstName("Player 2");
+        playerDTO.setLastName("Player 2 Name");
+        playerDTO.setPosition("13");
     }
 
     @Test

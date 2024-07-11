@@ -35,12 +35,13 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
-        String errorMessage = "Please verify the properties of team and players. One or more required properties are missing or invalid.";
-        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
+        String messageError = "" ;
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(DuplicateEntityException.class)
     public ResponseEntity<String> handleDuplicateEntityException(DuplicateEntityException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
+        String ErrorMsg = "Duplicate entity" + ex.getMessage() ;
+        return new ResponseEntity<>(ErrorMsg, HttpStatus.CONFLICT);
     }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> globalExceptionHandler(Exception ex, WebRequest request) {

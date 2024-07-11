@@ -27,6 +27,7 @@ public class Team {
     private String acronym;
     @Column(nullable = false)
     private Double budget;
+
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Player> players = new ArrayList<>();
 
