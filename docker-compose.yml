@@ -1,5 +1,4 @@
 services:
-
   db:
     image: postgres:latest
     restart: always
@@ -10,7 +9,27 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
+    networks:
+      - db
+
+  app:
+    image: docker.io/souerta/football-nice-apis:latest
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/football
+      SPRING_DATASOURCE_USERNAME: football
+      SPRING_DATASOURCE_PASSWORD: matawan123
+    networks:
+      - db
+    depends_on:
+      - db
+    restart: unless-stopped
+
+networks:
+  db:
+    driver: bridge
 
 volumes:
-  pgdata:
+  db:
