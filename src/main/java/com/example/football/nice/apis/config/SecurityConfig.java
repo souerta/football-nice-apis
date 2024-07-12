@@ -17,7 +17,9 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)  // Disable CSRF protection for the API
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/**").authenticated()  // Secure all API endpoints
+                        .requestMatchers("/api/**",
+                                "/swagger-ui.html"
+                                ).authenticated()  // Secure all API endpoints
                         .anyRequest().permitAll()  // Allow public access to other endpoints
                 )
                 .httpBasic(Customizer.withDefaults());  // Use Basic Auth
